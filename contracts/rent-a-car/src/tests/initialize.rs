@@ -5,10 +5,7 @@ use crate::tests::config::{contract::ContractTest, utils::get_contract_events};
 pub fn test_initialize() {
     let ContractTest { env, contract, admin, token, .. } = ContractTest::setup();
     let contract_events = get_contract_events(&env, &contract.address);
-
-    let contract_admin = contract.get_admin();
-
-    assert_eq!(admin, contract_admin);
+    
     assert_eq!(
         contract_events,
         vec![

@@ -1,4 +1,5 @@
-﻿use crate::interfaces::contract::RentACarContractTrait;
+﻿use crate::{events, methods};
+use crate::interfaces::contract::RentACarContractTrait;
 use crate::methods::token::token::token_transfer;
 use crate::storage::admin::{has_admin, read_admin, write_admin};
 use crate::storage::car::{has_car, read_car, remove_car, write_car};
@@ -10,7 +11,8 @@ use crate::storage::token::write_token;
 use crate::storage::types::car_status::CarStatus;
 use crate::storage::types::errors::Error;
 use soroban_sdk::{contract, contractimpl, Address, Env};
-use crate::events;
+use crate::methods::public;
+
 
 #[contract]
 pub struct RentACarContract;
@@ -34,12 +36,8 @@ impl RentACarContractTrait for RentACarContract {
         Ok(())
     }
 
-    fn get_admin(env: &Env) -> Address {
-        read_admin(env)
-    }
-
     fn add_car(env: &Env, owner: Address, price_per_day: i128) -> Result<(), Error> {
-        let admin = read_admin(env);
+        let admin = read_admin(env)?;
         admin.require_auth();
 
         if price_per_day <= 0 {
@@ -62,13 +60,7 @@ impl RentACarContractTrait for RentACarContract {
     }
 
     fn get_car_status(env: &Env, owner: Address) -> Result<CarStatus, Error> {
-        if !has_car(env, &owner) {
-            return Err(Error::CarNotFound);
-        }
-
-        let car = read_car(env, &owner);
-
-        Ok(car.car_status)
+        public::get_car_status::get_car_status(env, &owner)
     }
 
     fn rental(
@@ -96,14 +88,17 @@ impl RentACarContractTrait for RentACarContract {
             return Err(Error::CarNotFound);
         }
 
-        let mut car = read_car(env, &owner);
+        let mut car = read_car(env, &owner)?;
 
         if car.car_status != CarStatus::Available {
             return Err(Error::CarAlreadyRented);
         }
 
         car.car_status = CarStatus::Rented;
-        car.available_to_withdraw += amount;
+        car.available_to_withdraw = car
+            .available_to_withdraw
+            .checked_add(amount)
+            .ok_or(Error::OverflowError)?;
 
         let rental = Rental {
             total_days_to_rent,
@@ -111,19 +106,20 @@ impl RentACarContractTrait for RentACarContract {
         };
 
         let mut contract_balance = read_contract_balance(&env);
-        contract_balance += amount;
+        contract_balance = contract_balance
+            .checked_add(amount)
+            .ok_or(Error::OverflowError)?;
 
         write_contract_balance(&env, &contract_balance);
         write_car(env, &owner, &car);
         write_rental(env, &renter, &owner, &rental);
 
-        token_transfer(&env, &renter, &env.current_contract_address(), &amount);
+        token_transfer(&env, &renter, &env.current_contract_address(), &amount)?;
         events::rental::rented(env, renter, owner, total_days_to_rent, amount);
         Ok(())
     }
     fn remove_car(env: &Env, owner: Address) -> Result<(), Error> {
-
-        let admin = read_admin(env);
+        let admin = read_admin(env)?;
         admin.require_auth();
 
         if !has_car(env, &owner) {
@@ -145,7 +141,7 @@ impl RentACarContractTrait for RentACarContract {
             return Err(Error::CarNotFound);
         }
 
-        let mut car = read_car(&env, &owner);
+        let mut car = read_car(&env, &owner)?;
 
         if amount > car.available_to_withdraw {
             return Err(Error::InsufficientBalance);
@@ -157,13 +153,18 @@ impl RentACarContractTrait for RentACarContract {
             return Err(Error::BalanceNotAvailableForAmountRequested);
         }
 
-        car.available_to_withdraw -= amount;
-        contract_balance -= amount;
+        car.available_to_withdraw = car
+            .available_to_withdraw
+            .checked_sub(amount)
+            .ok_or(Error::OverflowError)?;
+        contract_balance = contract_balance
+            .checked_sub(amount)
+            .ok_or(Error::OverflowError)?;
 
         write_car(&env, &owner, &car);
         write_contract_balance(&env, &contract_balance);
 
-        token_transfer(&env, &env.current_contract_address(), &owner, &amount);
+        token_transfer(&env, &env.current_contract_address(), &owner, &amount)?;
         events::payout_owner::payout_owner(env, owner, amount);
         Ok(())
     }

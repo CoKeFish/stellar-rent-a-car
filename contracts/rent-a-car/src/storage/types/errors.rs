@@ -17,4 +17,7 @@ pub enum Error {
     RentalDurationCannotBeZero = 11,
     SelfRentalNotAllowed = 12,
     CarAlreadyRented = 13,
+    TokenNotFound = 14,
+    AdminNotFound = 15,
+    OverflowError = 16,
 }

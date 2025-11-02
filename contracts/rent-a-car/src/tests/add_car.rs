@@ -26,7 +26,7 @@ pub fn test_add_car_successfully() {
 
     let stored_car = env.as_contract(&contract.address, || {
         read_car(&env, &owner)
-    });
+    }).unwrap();
 
     assert_eq!(stored_car.price_per_day, price_per_day);
     assert_eq!(stored_car.car_status, CarStatus::Available);
