@@ -1,7 +1,7 @@
-﻿pub mod car;
-pub mod admin;
+﻿pub mod admin;
+pub mod car;
+pub mod contract_balance;
 pub mod rental;
-pub mod token;
 pub mod structs;
+pub mod token;
 pub mod types;
-mod contract_balance;
