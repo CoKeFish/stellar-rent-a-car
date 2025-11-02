@@ -28,6 +28,7 @@ pub fn test_rental_car_successfully() {
     let contract_events = get_contract_events(&env, &contract.address);
 
     let updated_contract_balance = env.as_contract(&contract.address, || read_contract_balance(&env));
+    // When commission is 0 (default), total amount equals rental amount
     assert_eq!(updated_contract_balance, amount);
 
     let car = env.as_contract(&contract.address, || read_car(&env, &owner)).unwrap();
@@ -65,7 +66,7 @@ pub fn test_rental_with_admin_commission() {
     let total_days = 3;
     let amount = 4500_i128;
     let commission = 500_i128;
-    let expected_owner_amount = amount - commission;
+    let expected_total_amount = amount + commission;
 
     env.mock_all_auths();
 
@@ -85,12 +86,13 @@ pub fn test_rental_with_admin_commission() {
     contract.rental(&renter, &owner, &total_days, &amount);
 
     let updated_contract_balance = env.as_contract(&contract.address, || read_contract_balance(&env));
-    assert_eq!(updated_contract_balance, amount);
+    // Contract balance should include both amount and commission
+    assert_eq!(updated_contract_balance, expected_total_amount);
 
     let car = env.as_contract(&contract.address, || read_car(&env, &owner)).unwrap();
     assert_eq!(car.car_status, CarStatus::Rented);
-    // Owner should receive amount minus commission
-    assert_eq!(car.available_to_withdraw, expected_owner_amount);
+    // Owner should receive the full rental amount (commission is added to deposit, not deducted)
+    assert_eq!(car.available_to_withdraw, amount);
 
     let rental = env.as_contract(&contract.address, || read_rental(&env, &renter, &owner)).unwrap();
     assert_eq!(rental.total_days_to_rent, total_days);
@@ -121,14 +123,17 @@ pub fn test_rental_with_zero_commission() {
 
     contract.rental(&renter, &owner, &total_days, &amount);
 
+    let updated_contract_balance = env.as_contract(&contract.address, || read_contract_balance(&env));
+    // When commission is 0, total amount equals rental amount
+    assert_eq!(updated_contract_balance, amount);
+
     let car = env.as_contract(&contract.address, || read_car(&env, &owner)).unwrap();
     // Owner should receive full amount when commission is 0
     assert_eq!(car.available_to_withdraw, amount);
 }
 
 #[test]
-#[should_panic(expected = "Error(Contract, #6)")]
-pub fn test_rental_with_commission_greater_than_amount_fails() {
+pub fn test_rental_with_commission_added_to_deposit() {
     let ContractTest { contract, env, token, .. } = ContractTest::setup();
 
     let owner = Address::generate(&env);
@@ -136,19 +141,30 @@ pub fn test_rental_with_commission_greater_than_amount_fails() {
     let price_per_day = 1500_i128;
     let total_days = 3;
     let amount = 4500_i128;
-    let commission = 5000_i128; // Greater than amount
+    let commission = 5000_i128; // Commission can be any value, it's added to deposit
 
     env.mock_all_auths();
 
     let (_, token_admin, _) = token;
 
-    let amount_mint = 10_000_i128;
+    let amount_mint = 20_000_i128; // Enough to cover amount + commission
     token_admin.mint(&renter, &amount_mint);
 
     contract.add_car(&owner, &price_per_day);
     
-    // Set commission greater than rental amount
+    // Set commission (even if greater than amount, it just gets added to deposit)
     contract.set_admin_commission(&commission);
 
+    let initial_contract_balance = env.as_contract(&contract.address, || read_contract_balance(&env));
+    assert_eq!(initial_contract_balance, 0);
+
     contract.rental(&renter, &owner, &total_days, &amount);
+
+    let updated_contract_balance = env.as_contract(&contract.address, || read_contract_balance(&env));
+    // Contract balance should include amount + commission
+    assert_eq!(updated_contract_balance, amount + commission);
+
+    let car = env.as_contract(&contract.address, || read_car(&env, &owner)).unwrap();
+    // Owner receives full rental amount
+    assert_eq!(car.available_to_withdraw, amount);
 }

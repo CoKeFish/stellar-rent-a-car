@@ -97,17 +97,14 @@ impl RentACarContractTrait for RentACarContract {
         car.car_status = CarStatus::Rented;
         
         let admin_commission = read_admin_commission(env);
-        let owner_amount = amount
-            .checked_sub(admin_commission)
+        let total_amount = amount
+            .checked_add(admin_commission)
             .ok_or(Error::OverflowError)?;
-        
-        if owner_amount < 0 {
-            return Err(Error::AmountMustBePositive);
-        }
 
+        // Owner receives the full rental amount (without commission deduction)
         car.available_to_withdraw = car
             .available_to_withdraw
-            .checked_add(owner_amount)
+            .checked_add(amount)
             .ok_or(Error::OverflowError)?;
 
         let rental = Rental {
@@ -116,15 +113,17 @@ impl RentACarContractTrait for RentACarContract {
         };
 
         let mut contract_balance = read_contract_balance(&env);
+        // Contract balance includes both the rental amount and commission
         contract_balance = contract_balance
-            .checked_add(amount)
+            .checked_add(total_amount)
             .ok_or(Error::OverflowError)?;
 
         write_contract_balance(&env, &contract_balance);
         write_car(env, &owner, &car);
         write_rental(env, &renter, &owner, &rental);
 
-        token_transfer(&env, &renter, &env.current_contract_address(), &amount)?;
+        // Renter pays the rental amount plus commission
+        token_transfer(&env, &renter, &env.current_contract_address(), &total_amount)?;
         events::rental::rented(env, renter, owner, total_days_to_rent, amount);
         Ok(())
     }
