@@ -7,3 +7,4 @@ pub mod get_car_status;
 pub mod rental;
 pub mod remove_car;
 mod payout_owner;
+mod auth;
