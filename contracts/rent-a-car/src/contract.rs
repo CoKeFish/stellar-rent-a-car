@@ -1,7 +1,7 @@
 ﻿use crate::{events, methods};
 use crate::interfaces::contract::RentACarContractTrait;
 use crate::methods::token::token::token_transfer;
-use crate::storage::admin::{has_admin, read_admin, write_admin, read_admin_commission, write_admin_commission};
+use crate::storage::admin::{has_admin, read_admin, write_admin, read_admin_commission, write_admin_commission, read_admin_available_to_withdraw, write_admin_available_to_withdraw};
 use crate::storage::car::{has_car, read_car, remove_car, write_car};
 use crate::storage::contract_balance::{read_contract_balance, write_contract_balance};
 use crate::storage::rental::write_rental;
@@ -107,6 +107,13 @@ impl RentACarContractTrait for RentACarContract {
             .checked_add(amount)
             .ok_or(Error::OverflowError)?;
 
+        // Accumulate commission for admin
+        let mut admin_available = read_admin_available_to_withdraw(env);
+        admin_available = admin_available
+            .checked_add(admin_commission)
+            .ok_or(Error::OverflowError)?;
+        write_admin_available_to_withdraw(env, admin_available);
+
         let rental = Rental {
             total_days_to_rent,
             amount,
@@ -187,6 +194,40 @@ impl RentACarContractTrait for RentACarContract {
         }
 
         write_admin_commission(env, commission);
+        Ok(())
+    }
+
+    fn withdraw_admin_commission(env: &Env, amount: i128) -> Result<(), Error> {
+        let admin = read_admin(env)?;
+        admin.require_auth();
+
+        if amount <= 0 {
+            return Err(Error::AmountMustBePositive);
+        }
+
+        let mut admin_available = read_admin_available_to_withdraw(env);
+
+        if amount > admin_available {
+            return Err(Error::InsufficientBalance);
+        }
+
+        let mut contract_balance = read_contract_balance(&env);
+
+        if amount > contract_balance {
+            return Err(Error::BalanceNotAvailableForAmountRequested);
+        }
+
+        admin_available = admin_available
+            .checked_sub(amount)
+            .ok_or(Error::OverflowError)?;
+        contract_balance = contract_balance
+            .checked_sub(amount)
+            .ok_or(Error::OverflowError)?;
+
+        write_admin_available_to_withdraw(env, admin_available);
+        write_contract_balance(&env, &contract_balance);
+
+        token_transfer(&env, &env.current_contract_address(), &admin, &amount)?;
         Ok(())
     }
 }

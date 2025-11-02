@@ -7,5 +7,6 @@ pub mod get_car_status;
 pub mod rental;
 pub mod remove_car;
 pub mod admin_commission;
+pub mod withdraw_admin_commission;
 mod payout_owner;
 mod auth;

@@ -38,3 +38,18 @@ pub(crate) fn write_admin_commission(env: &Env, commission: i128) {
     
     env.storage().instance().set(&key, &commission);
 }
+
+pub(crate) fn read_admin_available_to_withdraw(env: &Env) -> i128 {
+    let key = DataKey::AdminAvailableToWithdraw;
+    
+    env.storage()
+        .instance()
+        .get(&key)
+        .unwrap_or(0)
+}
+
+pub(crate) fn write_admin_available_to_withdraw(env: &Env, amount: i128) {
+    let key = DataKey::AdminAvailableToWithdraw;
+    
+    env.storage().instance().set(&key, &amount);
+}
