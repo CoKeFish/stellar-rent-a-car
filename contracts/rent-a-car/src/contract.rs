@@ -1,7 +1,7 @@
 ﻿use crate::{events, methods};
 use crate::interfaces::contract::RentACarContractTrait;
 use crate::methods::token::token::token_transfer;
-use crate::storage::admin::{has_admin, read_admin, write_admin};
+use crate::storage::admin::{has_admin, read_admin, write_admin, read_admin_commission, write_admin_commission};
 use crate::storage::car::{has_car, read_car, remove_car, write_car};
 use crate::storage::contract_balance::{read_contract_balance, write_contract_balance};
 use crate::storage::rental::write_rental;
@@ -95,9 +95,19 @@ impl RentACarContractTrait for RentACarContract {
         }
 
         car.car_status = CarStatus::Rented;
+        
+        let admin_commission = read_admin_commission(env);
+        let owner_amount = amount
+            .checked_sub(admin_commission)
+            .ok_or(Error::OverflowError)?;
+        
+        if owner_amount < 0 {
+            return Err(Error::AmountMustBePositive);
+        }
+
         car.available_to_withdraw = car
             .available_to_withdraw
-            .checked_add(amount)
+            .checked_add(owner_amount)
             .ok_or(Error::OverflowError)?;
 
         let rental = Rental {
@@ -166,6 +176,18 @@ impl RentACarContractTrait for RentACarContract {
 
         token_transfer(&env, &env.current_contract_address(), &owner, &amount)?;
         events::payout_owner::payout_owner(env, owner, amount);
+        Ok(())
+    }
+
+    fn set_admin_commission(env: &Env, commission: i128) -> Result<(), Error> {
+        let admin = read_admin(env)?;
+        admin.require_auth();
+
+        if commission < 0 {
+            return Err(Error::AmountMustBePositive);
+        }
+
+        write_admin_commission(env, commission);
         Ok(())
     }
 }

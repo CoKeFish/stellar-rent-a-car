@@ -6,6 +6,7 @@ pub enum DataKey {
     Admin,
     Token,
     ContractBalance,
+    AdminCommission,
     Car(Address),
     Rental(Address, Address),
 }

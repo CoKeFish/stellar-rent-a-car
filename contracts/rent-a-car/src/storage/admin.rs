@@ -23,3 +23,18 @@ pub(crate) fn write_admin(env: &Env, admin: &Address) {
 
     env.storage().instance().set(&key, admin);
 }
+
+pub(crate) fn read_admin_commission(env: &Env) -> i128 {
+    let key = DataKey::AdminCommission;
+    
+    env.storage()
+        .instance()
+        .get(&key)
+        .unwrap_or(0)
+}
+
+pub(crate) fn write_admin_commission(env: &Env, commission: i128) {
+    let key = DataKey::AdminCommission;
+    
+    env.storage().instance().set(&key, &commission);
+}
