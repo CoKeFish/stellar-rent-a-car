@@ -1,4 +1,5 @@
-﻿import Modal from "./Modal";
+﻿import { toast } from "react-toastify";
+import Modal from "./Modal";
 import {stellarService} from "../services/stellar.service.ts";
 import {useStellarAccounts} from "../providers/StellarAccountProvider.tsx";
 import {useState} from "react";
@@ -43,7 +44,7 @@ function ClaimBalanceModal({
 
     const handleClaim = async () => {
         if (!claimantAccount) {
-            alert("Please select a claimant account");
+            toast.error("Por favor selecciona una cuenta para reclamar.");
             return;
         }
 
@@ -59,12 +60,14 @@ function ClaimBalanceModal({
             }
 
             setHashId(response.hash);
+            toast.success("Balance reclamado exitosamente.");
 
             setClaimantAccount(null);
             closeModal();
         } catch (error) {
             console.error("Claim failed:", error);
-            alert("Failed to claim balance. Please try again.");
+            const errorMessage = error instanceof Error ? error.message : "Error al reclamar el balance. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
         } finally {
             setIsClaiming(false);
         }

@@ -1,4 +1,5 @@
-﻿import Modal from "./Modal.tsx";
+﻿import { toast } from "react-toastify";
+import Modal from "./Modal.tsx";
 import {IAccount} from "../interfaces/account.ts";
 import {useState} from "react";
 import {useStellarAccounts} from "../providers/StellarAccountProvider.tsx";
@@ -44,7 +45,7 @@ function CreateAssetModal({
 
     const handleSubmit = async () => {
         if (!sourceAccount || !assetCode || !amount || !destinationAccount) {
-            alert("Please fill all fields");
+            toast.error("Por favor completa todos los campos.");
             return;
         }
 
@@ -62,6 +63,7 @@ function CreateAssetModal({
             }
 
             setHashId(response.hash);
+            toast.success("Asset creado exitosamente.");
 
             setSourceAccount(null);
             setDestinationAccount(null);
@@ -70,7 +72,8 @@ function CreateAssetModal({
             closeModal();
         } catch (error) {
             console.error("Payment failed:", error);
-            alert("Payment failed. Please try again.");
+            const errorMessage = error instanceof Error ? error.message : "Error al crear el asset. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

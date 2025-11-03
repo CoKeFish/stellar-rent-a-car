@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import Modal from "./Modal";
 import { ONE_XLM_IN_STROOPS } from "../utils/xlm-in-stroops";
 
@@ -23,10 +24,12 @@ export default function WithdrawCommissionModal({
         try {
             const amountInStroops = amountInXlm * ONE_XLM_IN_STROOPS;
             await onWithdraw(amountInStroops);
+            toast.success("Comisión retirada exitosamente.");
             closeModal();
         } catch (error) {
             console.error("Error withdrawing commission:", error);
-            alert("Error withdrawing commission. Please try again.");
+            const errorMessage = error instanceof Error ? error.message : "Error al retirar la comisión. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

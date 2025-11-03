@@ -1,4 +1,5 @@
-﻿import Modal from "./Modal";
+﻿import { toast } from "react-toastify";
+import Modal from "./Modal";
 import {stellarService} from "../services/stellar.service.ts";
 import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {AccountBalance, IAccount} from "../interfaces/account.ts";
@@ -81,7 +82,7 @@ function CreateClaimableModal({
 
     const handleSubmit = async () => {
         if (!sourceAccount || !selectedAsset || !amount || !destinationAccount) {
-            alert("Please fill all fields");
+            toast.error("Por favor completa todos los campos.");
             return;
         }
 
@@ -106,6 +107,7 @@ function CreateClaimableModal({
             }
 
             setHashId(response?.transaction.hash);
+            toast.success("Claimable balance creado exitosamente.");
 
             setSourceAccount(null);
             setDestinationAccount(null);
@@ -114,7 +116,8 @@ function CreateClaimableModal({
             closeModal();
         } catch (error) {
             console.error("Payment failed:", error);
-            alert("Payment failed. Please try again.");
+            const errorMessage = error instanceof Error ? error.message : "Error al crear el claimable balance. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

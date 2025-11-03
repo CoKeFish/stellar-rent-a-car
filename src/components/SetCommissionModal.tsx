@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import Modal from "./Modal";
 
 interface SetCommissionModalProps {
@@ -19,10 +20,12 @@ export default function SetCommissionModal({
 
         try {
             await onSetCommission(commission);
+            toast.success("Comisión configurada exitosamente.");
             closeModal();
         } catch (error) {
             console.error("Error setting commission:", error);
-            alert("Error setting commission. Please try again.");
+            const errorMessage = error instanceof Error ? error.message : "Error al configurar la comisión. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

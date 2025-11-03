@@ -1,5 +1,7 @@
 import { Button, Layout, Profile } from "@stellar/design-system";
 import { Outlet, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import AccountManager from "./components/AccountManager";
 import { shortenAddress } from "./utils/shorten-address";
 import ConnectWallet from "./pages/ConnectWallet";
@@ -93,6 +95,18 @@ const AppLayout: React.FC = () => {
           .
         </span>
             </Layout.Footer>
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
         </main>
     );
 };

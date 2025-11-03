@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import Modal from "./Modal";
 import { ONE_XLM_IN_STROOPS } from "../utils/xlm-in-stroops";
 
@@ -33,14 +34,14 @@ export default function WithdrawOwnerModal({
         
         // Validate amount before submitting
         if (isNaN(amountInXlm) || !isFinite(amountInXlm) || amountInXlm <= 0) {
-            alert("Please enter a valid amount to withdraw.");
+            toast.error("Por favor ingresa un monto válido para retirar.");
             return;
         }
 
         const amountInStroops = amountInXlm * ONE_XLM_IN_STROOPS;
         
         if (amountInStroops > validAvailableAmount) {
-            alert("Amount exceeds available balance.");
+            toast.error("El monto excede el balance disponible.");
             return;
         }
 
@@ -48,10 +49,12 @@ export default function WithdrawOwnerModal({
 
         try {
             await onWithdraw(ownerAddress, amountInStroops);
+            toast.success("Retiro realizado exitosamente.");
             closeModal();
         } catch (error) {
             console.error("Error withdrawing funds:", error);
-            alert("Error withdrawing funds. Please try again.");
+            const errorMessage = error instanceof Error ? error.message : "Error al retirar fondos. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

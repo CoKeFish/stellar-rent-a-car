@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import Modal from "./Modal";
 import { ICar } from "../interfaces/car";
 import { ONE_XLM_IN_STROOPS } from "../utils/xlm-in-stroops";
@@ -18,13 +19,12 @@ export default function RentCarModal({
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const totalPrice = car.pricePerDay * days;
-    const totalPriceInStroops = totalPrice * ONE_XLM_IN_STROOPS;
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         
         if (days < 1) {
-            alert("Please enter a valid number of days (minimum 1 day)");
+            toast.error("Por favor ingresa un número válido de días (mínimo 1 día)");
             return;
         }
 
@@ -32,10 +32,12 @@ export default function RentCarModal({
 
         try {
             await onRent(car, days);
+            toast.success("Auto alquilado exitosamente.");
             closeModal();
         } catch (error) {
             console.error("Error renting car:", error);
-            alert("Error renting car. Please try again.");
+            const errorMessage = error instanceof Error ? error.message : "Error al alquilar el auto. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

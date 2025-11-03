@@ -1,4 +1,5 @@
-﻿import {AccountBalance, IAccount} from "../interfaces/account.ts";
+﻿import { toast } from "react-toastify";
+import {AccountBalance, IAccount} from "../interfaces/account.ts";
 import {useStellarAccounts} from "../providers/StellarAccountProvider.tsx";
 import {useEffect, useState} from "react";
 import {stellarService} from "../services/stellar.service.ts";
@@ -75,12 +76,12 @@ function PaymentModal({
 
     const handleSubmit = async () => {
         if (!sourceAccount || !destinationAccount || !amount || !selectedAsset) {
-            alert("Please fill all fields");
+            toast.error("Por favor completa todos los campos.");
             return;
         }
 
         if (sourceAccount.publicKey === destinationAccount.publicKey) {
-            alert("Source and destination accounts must be different");
+            toast.error("Las cuentas de origen y destino deben ser diferentes.");
             return;
         }
 
@@ -104,6 +105,7 @@ function PaymentModal({
             }
 
             setHashId(response.hash);
+            toast.success("Pago realizado exitosamente.");
 
             setSourceAccount(null);
             setDestinationAccount(null);
@@ -112,7 +114,8 @@ function PaymentModal({
             closeModal();
         } catch (error) {
             console.error("Payment failed:", error);
-            alert("Payment failed. Please try again.");
+            const errorMessage = error instanceof Error ? error.message : "Error al realizar el pago. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
