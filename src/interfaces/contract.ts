@@ -59,6 +59,14 @@ export interface IRentACarContract extends IBaseContractClient {
         amount: number;
     }) => Promise<this>;
 
+    get_owner_available_to_withdraw: ({
+        owner,
+    }: {
+        owner: string;
+    }) => {
+        simulate: () => Promise<{ result: number }>;
+    };
+
     return_car: ({
         renter,
         owner,

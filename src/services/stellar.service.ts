@@ -85,6 +85,40 @@ export class StellarService {
         return Number(value);
     }
 
+    async getOwnerAvailableToWithdraw(ownerAddress: string): Promise<number> {
+        // Use contract.Client which handles type conversions automatically
+        const server = new rpc.Server(this.rpcUrl, { allowHttp: true });
+        
+        // Use any account as source for read-only call
+        const account = await server.getAccount("GBB4TMS3YCHAHON4ADO6UC3W6OFZNUZB7GKS4Q43BTEQ42O6GVIZWCOQ");
+
+        // Build contract client that handles parameter conversion
+        const contractClient = await contract.Client.from({
+            contractId: this.contractAddress,
+            rpcUrl: this.rpcUrl,
+            networkPassphrase: this.networkPassphrase,
+            publicKey: account.accountId(),
+        });
+
+        // Call the function using the client which converts types automatically
+        const result = await (contractClient as any).get_owner_available_to_withdraw({
+            owner: ownerAddress,
+        });
+
+        // The result already has simulation property
+        const simulationResult = result.simulation;
+
+        if (!simulationResult?.result?.retval) {
+            console.error("Simulation failed:", simulationResult);
+            throw new Error("No result returned from simulation");
+        }
+
+        const value = scValToNative(simulationResult.result.retval);
+        // Handle BigInt conversion
+        const numericValue = typeof value === 'bigint' ? Number(value) : Number(value);
+        return numericValue;
+    }
+
     async submitTransaction(xdr: string): Promise<string | undefined> {
         try {
             const transaction = TransactionBuilder.fromXDR(

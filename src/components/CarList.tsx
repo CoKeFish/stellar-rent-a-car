@@ -10,6 +10,7 @@ import {useStellarAccounts} from "../providers/StellarAccountProvider.tsx";
 import { useState } from "react";
 import useModal from "../hooks/useModal";
 import RentCarModal from "./RentCarModal";
+import WithdrawOwnerModal from "./WithdrawOwnerModal";
 
 interface CarsListProps {
     cars: ICar[];
@@ -19,7 +20,9 @@ export const CarsList = ({ cars }: CarsListProps) => {
     const { walletAddress, selectedRole, setHashId, setCars } =
         useStellarAccounts();
     const rentModal = useModal();
+    const withdrawModal = useModal();
     const [selectedCar, setSelectedCar] = useState<ICar | null>(null);
+    const [ownerAvailableAmount, setOwnerAvailableAmount] = useState<number>(0);
 
     const handleDelete = async (owner: string) => {
         const contractClient =
@@ -46,6 +49,31 @@ export const CarsList = ({ cars }: CarsListProps) => {
         const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
         setHashId(txHash as string);
+        
+        // Refresh available amount after withdrawal
+        if (selectedCar && selectedCar.ownerAddress === owner) {
+            try {
+                const available = await stellarService.getOwnerAvailableToWithdraw(owner);
+                setOwnerAvailableAmount(available);
+            } catch (error) {
+                console.error("Error refreshing available amount:", error);
+                setOwnerAvailableAmount(0);
+            }
+        }
+    };
+
+    const openWithdrawModal = async (car: ICar) => {
+        setSelectedCar(car);
+        try {
+            // Load available amount before opening modal
+            const available = await stellarService.getOwnerAvailableToWithdraw(car.ownerAddress);
+            setOwnerAvailableAmount(available);
+            withdrawModal.openModal();
+        } catch (error) {
+            console.error("Error loading available amount:", error);
+            setOwnerAvailableAmount(0);
+            withdrawModal.openModal();
+        }
     };
 
     const handleRent = async (
@@ -133,15 +161,18 @@ export const CarsList = ({ cars }: CarsListProps) => {
         }
 
         if (selectedRole === UserRole.OWNER) {
-            const amount = car.pricePerDay * 3 * ONE_XLM_IN_STROOPS;
-            return (
-                <button
-                    onClick={() => void handlePayout(car.ownerAddress, amount)}
-                    className="px-3 py-1 bg-green-600 text-white rounded font-semibold hover:bg-green-700 transition-colors cursor-pointer"
-                >
-                    Withdraw
-                </button>
-            );
+            // Only show withdraw button if car status is Available (returned)
+            if (car.status === CarStatus.AVAILABLE) {
+                return (
+                    <button
+                        onClick={() => void openWithdrawModal(car)}
+                        className="px-3 py-1 bg-green-600 text-white rounded font-semibold hover:bg-green-700 transition-colors cursor-pointer"
+                    >
+                        Withdraw
+                    </button>
+                );
+            }
+            return null;
         }
 
         if (selectedRole === UserRole.RENTER) {
@@ -255,6 +286,18 @@ export const CarsList = ({ cars }: CarsListProps) => {
                     }}
                     car={selectedCar}
                     onRent={handleRent}
+                />
+            )}
+
+            {withdrawModal.showModal && selectedCar && (
+                <WithdrawOwnerModal
+                    closeModal={() => {
+                        withdrawModal.closeModal();
+                        setSelectedCar(null);
+                    }}
+                    onWithdraw={handlePayout}
+                    availableAmount={ownerAvailableAmount}
+                    ownerAddress={selectedCar.ownerAddress}
                 />
             )}
         </div>
