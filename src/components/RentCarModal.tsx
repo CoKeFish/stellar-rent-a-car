@@ -2,7 +2,6 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import Modal from "./Modal";
 import { ICar } from "../interfaces/car";
-import { ONE_XLM_IN_STROOPS } from "../utils/xlm-in-stroops";
 
 interface RentCarModalProps {
     closeModal: () => void;

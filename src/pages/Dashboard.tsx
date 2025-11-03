@@ -1,4 +1,5 @@
-﻿import { CarsList } from "../components/CarList";
+﻿import { toast } from "react-toastify";
+import { CarsList } from "../components/CarList";
 import { CreateCarForm } from "../components/CreateCarForm";
 import StellarExpertLink from "../components/StellarExpertLink";
 import SetCommissionModal from "../components/SetCommissionModal";
@@ -40,88 +41,127 @@ export default function Dashboard() {
 
 
     const handleCreateCar = async (formData: CreateCar) => {
-        const { brand, model, color, passengers, pricePerDay, ac, ownerAddress } =
-            formData;
-        const contractClient =
-            await stellarService.buildClient<IRentACarContract>(walletAddress);
+        try {
+            const { brand, model, color, passengers, pricePerDay, ac, ownerAddress } =
+                formData;
+            const contractClient =
+                await stellarService.buildClient<IRentACarContract>(walletAddress);
 
-        const addCarResult = await contractClient.add_car({
-            owner: ownerAddress,
-            price_per_day: pricePerDay * ONE_XLM_IN_STROOPS,
-        });
-        const xdr = addCarResult.toXDR();
+            const addCarResult = await contractClient.add_car({
+                owner: ownerAddress,
+                price_per_day: pricePerDay * ONE_XLM_IN_STROOPS,
+            });
+            const xdr = addCarResult.toXDR();
 
-        const signedTx = await walletService.signTransaction(xdr);
-        const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
+            const signedTx = await walletService.signTransaction(xdr);
+            const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
-        const newCar: ICar = {
-            brand,
-            model,
-            color,
-            passengers,
-            pricePerDay,
-            ac,
-            ownerAddress,
-            status: CarStatus.AVAILABLE,
-        };
+            // Validar que la transacción fue exitosa antes de actualizar el estado
+            if (!txHash) {
+                throw new Error("La transacción no fue procesada correctamente.");
+            }
 
-        setCars((prevCars) => [...prevCars, newCar]);
-        setHashId(txHash as string);
-        closeModal();
+            const newCar: ICar = {
+                brand,
+                model,
+                color,
+                passengers,
+                pricePerDay,
+                ac,
+                ownerAddress,
+                status: CarStatus.AVAILABLE,
+            };
+
+            setCars((prevCars) => [...prevCars, newCar]);
+            setHashId(txHash);
+            toast.success("Vehículo agregado exitosamente.");
+            closeModal();
+        } catch (error) {
+            console.error("Error creating car:", error);
+            const errorMessage = error instanceof Error ? error.message : "Error al agregar el vehículo. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
+            // No cerrar el modal si hay error para que el usuario pueda intentar de nuevo
+        }
     };
 
 
 
     const handleSetCommission = async (commission: number) => {
-        const contractClient =
-            await stellarService.buildClient<IRentACarContract>(walletAddress);
+        try {
+            const contractClient =
+                await stellarService.buildClient<IRentACarContract>(walletAddress);
 
-        const result = await contractClient.set_admin_commission({
-            commission: commission * ONE_XLM_IN_STROOPS,
-        });
-        const xdr = result.toXDR();
+            const result = await contractClient.set_admin_commission({
+                commission: commission * ONE_XLM_IN_STROOPS,
+            });
+            const xdr = result.toXDR();
 
-        const signedTx = await walletService.signTransaction(xdr);
-        const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
+            const signedTx = await walletService.signTransaction(xdr);
+            const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
-        console.log("Transaction hash:", txHash);
-
-        setHashId(txHash as string);
-        // Refresh available commission after setting
-        if (selectedRole === UserRole.ADMIN && walletAddress) {
-            try {
-                const value = await stellarService.getAdminAvailableToWithdraw(walletAddress);
-                setAvailableCommission(value);
-            } catch (error) {
-                console.error("Error refreshing available commission:", error);
+            // Validar que la transacción fue exitosa antes de actualizar el estado
+            if (!txHash) {
+                throw new Error("La transacción no fue procesada correctamente.");
             }
+
+            setHashId(txHash);
+            toast.success("Comisión configurada exitosamente.");
+            
+            // Refresh available commission after setting
+            if (selectedRole === UserRole.ADMIN && walletAddress) {
+                try {
+                    const value = await stellarService.getAdminAvailableToWithdraw(walletAddress);
+                    setAvailableCommission(value);
+                } catch (error) {
+                    console.error("Error refreshing available commission:", error);
+                }
+            }
+            commissionModal.closeModal();
+        } catch (error) {
+            console.error("Error setting commission:", error);
+            const errorMessage = error instanceof Error ? error.message : "Error al configurar la comisión. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
+            throw error; // Re-lanzar para que el modal pueda manejar el error
         }
-        commissionModal.closeModal();
     };
 
     const handleWithdrawCommission = async (amountInStroops: number) => {
-        const contractClient =
-            await stellarService.buildClient<IRentACarContract>(walletAddress);
+        try {
+            const contractClient =
+                await stellarService.buildClient<IRentACarContract>(walletAddress);
 
-        const result = await contractClient.withdraw_admin_commission({
-            amount: amountInStroops,
-        });
-        const xdr = result.toXDR();
+            const result = await contractClient.withdraw_admin_commission({
+                amount: amountInStroops,
+            });
+            const xdr = result.toXDR();
 
-        const signedTx = await walletService.signTransaction(xdr);
-        const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
+            const signedTx = await walletService.signTransaction(xdr);
+            const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
-        setHashId(txHash as string);
-        // Refresh available commission after withdrawal
-        if (selectedRole === UserRole.ADMIN && walletAddress) {
-            try {
-                const value = await stellarService.getAdminAvailableToWithdraw(walletAddress);
-                setAvailableCommission(value);
-            } catch (error) {
-                console.error("Error refreshing available commission:", error);
+            // Validar que la transacción fue exitosa antes de actualizar el estado
+            if (!txHash) {
+                throw new Error("La transacción no fue procesada correctamente.");
             }
+
+            setHashId(txHash);
+            toast.success("Comisión retirada exitosamente.");
+            
+            // Refresh available commission after withdrawal
+            if (selectedRole === UserRole.ADMIN && walletAddress) {
+                try {
+                    const value = await stellarService.getAdminAvailableToWithdraw(walletAddress);
+                    setAvailableCommission(value);
+                } catch (error) {
+                    console.error("Error refreshing available commission:", error);
+                }
+            }
+            withdrawModal.closeModal();
+        } catch (error) {
+            console.error("Error withdrawing commission:", error);
+            const errorMessage = error instanceof Error ? error.message : "Error al retirar la comisión. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
+            throw error; // Re-lanzar para que el modal pueda manejar el error
         }
-        withdrawModal.closeModal();
     };
 
     return (

@@ -20,6 +20,7 @@ import {IKeypair} from "../interfaces/keypair.ts";
 import {AccountBalance} from "../interfaces/account.ts";
 import {IAccountBalanceResponse} from "../interfaces/balance.ts";
 import {ICreateClaimableBalanceResponse} from "../interfaces/claimable-balance.ts";
+import { getStellarErrorMessage } from "../utils/error-messages.ts";
 
 export class StellarService {
     private server: Horizon.Server;
@@ -119,7 +120,7 @@ export class StellarService {
         return numericValue;
     }
 
-    async submitTransaction(xdr: string): Promise<string | undefined> {
+    async submitTransaction(xdr: string): Promise<string> {
         try {
             const transaction = TransactionBuilder.fromXDR(
                 xdr,
@@ -127,17 +128,20 @@ export class StellarService {
             );
             const result = await this.server.submitTransaction(transaction);
 
+            // Validar que la transacción fue exitosa
+            if (!result.hash) {
+                throw new Error("La transacción no devolvió un hash válido.");
+            }
+
             return result.hash;
         } catch (error) {
-            console.error(error);
-            if (error.response?.data?.extras?.result_codes) {
-                console.error(
-                    "❌ Error en la transacción:",
-                    error.response.data.extras.result_codes
-                );
-            } else {
-                console.error("❌ Error general:", error);
-            }
+            console.error("Error submitting transaction:", error);
+            
+            // Usar el mapeo de errores para obtener mensaje descriptivo
+            const errorMessage = getStellarErrorMessage(error);
+            
+            // Lanzar error con mensaje descriptivo para que los componentes lo manejen
+            throw new Error(errorMessage);
         }
     }
 
@@ -473,18 +477,19 @@ export class StellarService {
     private async submitTransactionOld(transaction: Transaction): Promise<Horizon.HorizonApi.SubmitTransactionResponse> {
         try {
             const result = await this.server.submitTransaction(transaction);
-
             return result;
-        } catch (error) {
-            console.error(error);
-            if (error.response?.data?.extras?.result_codes) {
+        } catch (error: unknown) {
+            console.error("Error submitting transaction:", error);
+            const err = error as any;
+            if (err?.response?.data?.extras?.result_codes) {
                 console.error(
                     "❌ Error en la transacción:",
-                    error.response.data.extras.result_codes
+                    err.response.data.extras.result_codes
                 );
             } else {
                 console.error("❌ Error general:", error);
             }
+            throw error;
         }
     }
 

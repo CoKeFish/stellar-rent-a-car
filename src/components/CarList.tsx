@@ -1,4 +1,5 @@
-﻿import { ICar } from "../interfaces/car";
+﻿import { toast } from "react-toastify";
+import { ICar } from "../interfaces/car";
 import { CarStatus } from "../interfaces/car-status";
 import { IRentACarContract } from "../interfaces/contract";
 import { UserRole } from "../interfaces/user-role";
@@ -25,40 +26,65 @@ export const CarsList = ({ cars }: CarsListProps) => {
     const [ownerAvailableAmount, setOwnerAvailableAmount] = useState<number>(0);
 
     const handleDelete = async (owner: string) => {
-        const contractClient =
-            await stellarService.buildClient<IRentACarContract>(walletAddress);
+        try {
+            const contractClient =
+                await stellarService.buildClient<IRentACarContract>(walletAddress);
 
-        const result = await contractClient.remove_car({ owner });
-        const xdr = result.toXDR();
+            const result = await contractClient.remove_car({ owner });
+            const xdr = result.toXDR();
 
-        const signedTx = await walletService.signTransaction(xdr);
-        const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
+            const signedTx = await walletService.signTransaction(xdr);
+            const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
-        setCars((prev) => prev.filter((car) => car.ownerAddress !== owner));
-        setHashId(txHash as string);
+            // Validar que la transacción fue exitosa antes de actualizar el estado
+            if (!txHash) {
+                throw new Error("La transacción no fue procesada correctamente.");
+            }
+
+            setCars((prev) => prev.filter((car) => car.ownerAddress !== owner));
+            setHashId(txHash);
+            toast.success("Vehículo eliminado exitosamente.");
+        } catch (error) {
+            console.error("Error deleting car:", error);
+            const errorMessage = error instanceof Error ? error.message : "Error al eliminar el vehículo. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
+        }
     };
 
     const handlePayout = async (owner: string, amount: number) => {
-        const contractClient =
-            await stellarService.buildClient<IRentACarContract>(walletAddress);
+        try {
+            const contractClient =
+                await stellarService.buildClient<IRentACarContract>(walletAddress);
 
-        const result = await contractClient.payout_owner({ owner, amount });
-        const xdr = result.toXDR();
+            const result = await contractClient.payout_owner({ owner, amount });
+            const xdr = result.toXDR();
 
-        const signedTx = await walletService.signTransaction(xdr);
-        const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
+            const signedTx = await walletService.signTransaction(xdr);
+            const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
-        setHashId(txHash as string);
-        
-        // Refresh available amount after withdrawal
-        if (selectedCar && selectedCar.ownerAddress === owner) {
-            try {
-                const available = await stellarService.getOwnerAvailableToWithdraw(owner);
-                setOwnerAvailableAmount(available);
-            } catch (error) {
-                console.error("Error refreshing available amount:", error);
-                setOwnerAvailableAmount(0);
+            // Validar que la transacción fue exitosa antes de actualizar el estado
+            if (!txHash) {
+                throw new Error("La transacción no fue procesada correctamente.");
             }
+
+            setHashId(txHash);
+            toast.success("Fondos retirados exitosamente.");
+            
+            // Refresh available amount after withdrawal
+            if (selectedCar && selectedCar.ownerAddress === owner) {
+                try {
+                    const available = await stellarService.getOwnerAvailableToWithdraw(owner);
+                    setOwnerAvailableAmount(available);
+                } catch (error) {
+                    console.error("Error refreshing available amount:", error);
+                    setOwnerAvailableAmount(0);
+                }
+            }
+        } catch (error) {
+            console.error("Error withdrawing funds:", error);
+            const errorMessage = error instanceof Error ? error.message : "Error al retirar los fondos. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
+            throw error; // Re-lanzar para que el modal pueda manejar el error
         }
     };
 
@@ -80,31 +106,44 @@ export const CarsList = ({ cars }: CarsListProps) => {
         car: ICar,
         totalDaysToRent: number
     ) => {
-        const contractClient =
-            await stellarService.buildClient<IRentACarContract>(walletAddress);
+        try {
+            const contractClient =
+                await stellarService.buildClient<IRentACarContract>(walletAddress);
 
-        const rentalAmount = car.pricePerDay * totalDaysToRent * ONE_XLM_IN_STROOPS;
-        
-        // Note: Commission is automatically added to the deposit by the contract
-        const result = await contractClient.rental({
-            renter: walletAddress,
-            owner: car.ownerAddress,
-            total_days_to_rent: totalDaysToRent,
-            amount: rentalAmount,
-        });
-        const xdr = result.toXDR();
+            const rentalAmount = car.pricePerDay * totalDaysToRent * ONE_XLM_IN_STROOPS;
+            
+            // Note: Commission is automatically added to the deposit by the contract
+            const result = await contractClient.rental({
+                renter: walletAddress,
+                owner: car.ownerAddress,
+                total_days_to_rent: totalDaysToRent,
+                amount: rentalAmount,
+            });
+            const xdr = result.toXDR();
 
-        const signedTx = await walletService.signTransaction(xdr);
-        const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
+            const signedTx = await walletService.signTransaction(xdr);
+            const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
-        setCars((prev) =>
-            prev.map((c) =>
-                c.ownerAddress === car.ownerAddress
-                    ? { ...c, status: CarStatus.RENTED }
-                    : c
-            )
-        );
-        setHashId(txHash as string);
+            // Validar que la transacción fue exitosa antes de actualizar el estado
+            if (!txHash) {
+                throw new Error("La transacción no fue procesada correctamente.");
+            }
+
+            setCars((prev) =>
+                prev.map((c) =>
+                    c.ownerAddress === car.ownerAddress
+                        ? { ...c, status: CarStatus.RENTED }
+                        : c
+                )
+            );
+            setHashId(txHash);
+            toast.success("Auto alquilado exitosamente.");
+        } catch (error) {
+            console.error("Error renting car:", error);
+            const errorMessage = error instanceof Error ? error.message : "Error al alquilar el auto. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
+            throw error; // Re-lanzar para que el modal pueda manejar el error
+        }
     };
 
     const openRentModal = (car: ICar) => {
@@ -113,26 +152,38 @@ export const CarsList = ({ cars }: CarsListProps) => {
     };
 
     const handleReturnCar = async (car: ICar) => {
-        const contractClient =
-            await stellarService.buildClient<IRentACarContract>(walletAddress);
+        try {
+            const contractClient =
+                await stellarService.buildClient<IRentACarContract>(walletAddress);
 
-        const result = await contractClient.return_car({
-            renter: walletAddress,
-            owner: car.ownerAddress,
-        });
-        const xdr = result.toXDR();
+            const result = await contractClient.return_car({
+                renter: walletAddress,
+                owner: car.ownerAddress,
+            });
+            const xdr = result.toXDR();
 
-        const signedTx = await walletService.signTransaction(xdr);
-        const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
+            const signedTx = await walletService.signTransaction(xdr);
+            const txHash = await stellarService.submitTransaction(signedTx.signedTxXdr);
 
-        setCars((prev) =>
-            prev.map((c) =>
-                c.ownerAddress === car.ownerAddress
-                    ? { ...c, status: CarStatus.AVAILABLE }
-                    : c
-            )
-        );
-        setHashId(txHash as string);
+            // Validar que la transacción fue exitosa antes de actualizar el estado
+            if (!txHash) {
+                throw new Error("La transacción no fue procesada correctamente.");
+            }
+
+            setCars((prev) =>
+                prev.map((c) =>
+                    c.ownerAddress === car.ownerAddress
+                        ? { ...c, status: CarStatus.AVAILABLE }
+                        : c
+                )
+            );
+            setHashId(txHash);
+            toast.success("Auto devuelto exitosamente.");
+        } catch (error) {
+            console.error("Error returning car:", error);
+            const errorMessage = error instanceof Error ? error.message : "Error al devolver el auto. Por favor intenta de nuevo.";
+            toast.error(errorMessage);
+        }
     };
 
     const getStatusStyle = (status: CarStatus) => {
