@@ -24,7 +24,7 @@ Esta aplicación permite gestionar el alquiler de vehículos de forma descentral
 - **Arrendatarios**: Explorar vehículos disponibles, alquilar y devolver autos
 
 
-### 💡 Recomendación para Desarrollo y Pruebas
+### 💡 Recomendación para desarrollo y pruebas
 
 Para una mejor experiencia al probar la aplicación, **recomendamos crear 3 cuentas diferentes en Freighter** y mantenerlas conectadas simultáneamente:
 
@@ -44,7 +44,7 @@ De esta manera, puedes cambiar fácilmente entre roles desde la interfaz sin nec
 
 ## ✨ Características principales
 
-### 🧾 Comisión del Administrador
+### 🧾 Comisión del administrador
 
 El Administrador puede configurar una comisión monetaria fija por cada alquiler. Esta comisión se suma automáticamente al depósito que paga el arrendatario, garantizando ingresos para la plataforma.
 
@@ -60,7 +60,7 @@ El Administrador puede configurar una comisión monetaria fija por cada alquiler
 
 ---
 
-### 💰 Depósito + Comisión
+### 💰 Depósito + comisión
 
 Al alquilar un vehículo, la comisión configurada se suma automáticamente al depósito total. El Owner recibe el 100% del monto del alquiler (sin deducción de comisión), mientras que el Administrador acumula la comisión configurada.
 
@@ -75,7 +75,7 @@ Al alquilar un vehículo, la comisión configurada se suma automáticamente al d
 
 ---
 
-### 💸 Retiro de Fondos del Administrador
+### 💸 Retiro de fondos del administrador
 
 El Administrador puede consultar y retirar las comisiones acumuladas en cualquier momento a través de una interfaz intuitiva.
 
@@ -91,7 +91,7 @@ El Administrador puede consultar y retirar las comisiones acumuladas en cualquie
 
 ---
 
-### 🚗 Retornos de Autos
+### 🚗 Retornos de autos
 
 Los arrendatarios pueden devolver los vehículos que han alquilado, cambiando el estado del vehículo de "Rented" a "Available".
 
@@ -106,7 +106,7 @@ Los arrendatarios pueden devolver los vehículos que han alquilado, cambiando el
 
 ---
 
-### 🔒 Retiros de Owners Restringidos
+### 🔒 Retiros de owners restringidos
 
 Los propietarios solo pueden retirar sus fondos cuando el vehículo ha sido devuelto (estado "Available"). El botón de retiro está deshabilitado si:
 - El vehículo está alquilado (estado "Rented")
@@ -140,14 +140,14 @@ Antes de instalar y ejecutar el proyecto, asegúrate de tener instalado:
 
 ## 🚀 Instalación
 
-### 1. Clonar el Repositorio
+### 1. Clonar el repositorio
 
 ```bash
 git clone <tu-repositorio>
 cd stellar0dApp
 ```
 
-### 2. Configurar Variables de Entorno
+### 2. Configurar variables de entorno
 
 ```bash
 cp .env.example .env
@@ -155,19 +155,19 @@ cp .env.example .env
 
 Edita el archivo `.env` con tus configuraciones de red y contratos.
 
-### 3. Instalar Dependencias del Frontend
+### 3. Instalar dependencias del frontend
 
 ```bash
 npm install
 ```
 
-### 4. Instalar Dependencias de los Contratos
+### 4. Instalar dependencias de los contratos
 
 ```bash
 npm run install:contracts
 ```
 
-### 5. Compilar el Contrato
+### 5. Compilar el contrato
 
 ```bash
 cd contracts/rent-a-car
@@ -178,7 +178,7 @@ cargo build --target wasm32-unknown-unknown --release
 
 ## 💻 Uso
 
-### Modo Desarrollo
+### Modo desarrollo
 
 Para ejecutar el proyecto en modo desarrollo:
 
@@ -192,13 +192,13 @@ Esto iniciará:
 
 Abre tu navegador en la URL que se muestra en la consola (generalmente `http://localhost:5173`).
 
-### Compilar para Producción
+### Compilar para producción
 
 ```bash
 npm run build
 ```
 
-### Preview de Producción
+### Preview de producción
 
 ```bash
 npm run preview
@@ -208,7 +208,7 @@ npm run preview
 
 ## 🏗️ Arquitectura del contrato
 
-### Estructura de Datos
+### Estructura de datos
 
 El contrato utiliza las siguientes estructuras principales:
 
@@ -228,28 +228,28 @@ pub struct Rental {
 }
 ```
 
-#### **CarStatus (Estado del Vehículo)**
+#### **CarStatus (Estado del vehículo)**
 - `Available`: Disponible para alquilar
 - `Rented`: Actualmente alquilado
 - `Maintenance`: En mantenimiento
 
-### Funciones del Contrato
+### Funciones del contrato
 
-#### **Funciones Públicas (Cualquiera puede llamar)**
+#### **Funciones públicas (cualquiera puede llamar)**
 - `get_car_status(owner)`: Obtiene el estado de un vehículo
 - `get_admin_available_to_withdraw()`: Obtiene la comisión disponible del Admin
 - `get_owner_available_to_withdraw(owner)`: Obtiene los fondos disponibles del Owner
 
-#### **Funciones de Administrador**
+#### **Funciones de administrador**
 - `set_admin_commission(commission)`: Configura la comisión del Administrador
 - `withdraw_admin_commission(amount)`: Retira comisiones acumuladas
 - `remove_car(owner)`: Elimina un vehículo del catálogo
 
-#### **Funciones de Owner**
+#### **Funciones de owner**
 - `add_car(owner, price_per_day)`: Agrega un vehículo al catálogo
 - `payout_owner(owner, amount)`: Retira fondos (solo si el auto está disponible)
 
-#### **Funciones de Renter**
+#### **Funciones de renter**
 - `rental(renter, owner, total_days_to_rent, amount)`: Alquila un vehículo
 - `return_car(renter, owner)`: Devuelve un vehículo alquilado
 
@@ -257,37 +257,37 @@ pub struct Rental {
 
 ## 🎮 Funcionalidades implementadas
 
-### ✅ Gestión de Vehículos
+### ✅ Gestión de vehículos
 - [x] Agregar vehículos al catálogo (Owner)
 - [x] Eliminar vehículos del catálogo (Admin)
 - [x] Consultar estado de vehículos
 - [x] Actualización de estado en tiempo real
 
-### ✅ Sistema de Alquiler
+### ✅ Sistema de alquiler
 - [x] Alquilar vehículos por días
 - [x] Cálculo automático de precio total
 - [x] Validación de disponibilidad
 - [x] Cambio automático de estado a "Rented"
 
-### ✅ Sistema de Comisiones
+### ✅ Sistema de comisiones
 - [x] Configuración de comisión por el Administrador
 - [x] Comisión automática en cada alquiler
 - [x] Acumulación de comisiones
 - [x] Consulta de comisiones disponibles
 - [x] Retiro de comisiones acumuladas
 
-### ✅ Devolución de Vehículos
+### ✅ Devolución de vehículos
 - [x] Devolución de vehículos por arrendatarios
 - [x] Cambio automático de estado a "Available"
 - [x] Eliminación de registro de alquiler
 
-### ✅ Gestión de Fondos
+### ✅ Gestión de fondos
 - [x] Retiro de fondos por Owners (solo cuando el auto está disponible)
 - [x] Retiro de comisiones por Administrador
 - [x] Validación de fondos disponibles
 - [x] Visualización de fondos en tiempo real
 
-### ✅ Interfaz de Usuario
+### ✅ Interfaz de usuario
 - [x] Selección de roles (Admin, Owner, Renter)
 - [x] Dashboard con funcionalidades por rol
 - [x] Modales para todas las operaciones
@@ -351,36 +351,36 @@ stellar0dApp/
 
 El proyecto incluye una suite completa de tests unitarios para el contrato inteligente.
 
-### Ejecutar Tests del Contrato
+### Ejecutar tests del contrato
 
 ```bash
 cd contracts/rent-a-car
 cargo test --lib
 ```
 
-### Tests Implementados
+### Tests implementados
 
-- **Tests de Administración:**
+- **Tests de administración:**
   - `test_set_admin_commission_successfully`
   - `test_withdraw_admin_commission_successfully`
   - `test_get_admin_available_to_withdraw_after_rental`
 
-- **Tests de Vehículos:**
+- **Tests de vehículos:**
   - `test_add_car_successfully`
   - `test_remove_car_deletes_from_storage`
   - `test_get_car_status_returns_available`
 
-- **Tests de Alquiler:**
+- **Tests de alquiler:**
   - `test_rental_car_successfully`
   - `test_rental_with_admin_commission`
   - `test_return_car_successfully`
 
-- **Tests de Retiros:**
+- **Tests de retiros:**
   - `test_payout_owner_successfully`
   - `test_payout_owner_when_car_is_rented_fails`
   - `test_get_owner_available_to_withdraw_car_available_with_funds`
 
-- **Tests de Autenticación:**
+- **Tests de autenticación:**
   - Tests para verificar que solo usuarios autorizados pueden ejecutar funciones específicas
 
 ---
