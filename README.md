@@ -1,10 +1,10 @@
 # Rent-a-Car dApp - Stellar Soroban Smart Contract
 
-![Stellar](https://img.shields.io/badge/Stellar-7D00FF?style=for-the-badge&logo=stellar&logoColor=white)
-![Soroban](https://img.shields.io/badge/Soroban-7D00FF?style=for-the-badge&logo=stellar&logoColor=white)
+![Stellar](https://img.shields.io/badge/Stellar-FFD700?style=for-the-badge&logo=stellar&logoColor=000000)
+![Soroban](https://img.shields.io/badge/Soroban-FFD700?style=for-the-badge&logo=stellar&logoColor=000000)
+![Rust](https://img.shields.io/badge/Rust-8B4513?style=for-the-badge&logo=rust&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)
 
 > Aplicación descentralizada (dApp) para el alquiler de vehículos construida sobre la red Stellar utilizando contratos inteligentes de Soroban. Este proyecto implementa un sistema completo de gestión de alquiler de autos con roles de administrador, propietarios y arrendatarios.
 
