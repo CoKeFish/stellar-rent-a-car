@@ -1,232 +1,233 @@
 # Rent-a-Car dApp - Stellar Soroban Smart Contract
 
+[🇪🇸 Versión en Español](README.es.md)
+
 ![Stellar](https://img.shields.io/badge/Stellar-FFD700?style=for-the-badge&logo=stellar&logoColor=000000)
 ![Soroban](https://img.shields.io/badge/Soroban-FFD700?style=for-the-badge&logo=stellar&logoColor=000000)
 ![Rust](https://img.shields.io/badge/Rust-8B4513?style=for-the-badge&logo=rust&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 
-> Aplicación descentralizada (dApp) para el alquiler de vehículos construida sobre la red Stellar utilizando contratos inteligentes de Soroban. Este proyecto implementa un sistema completo de gestión de alquiler de autos con roles de administrador, propietarios y arrendatarios.
+> Decentralized application (dApp) for vehicle rental built on the Stellar network using Soroban smart contracts. This project implements a complete car rental management system with administrator, owner, and renter roles.
 
-![Vista previa de la aplicación](images/Banner.png)
+![Application preview](images/Banner.png)
 
 ---
 
-## Tabla de contenidos
+## Table of Contents
 
-- [Descripción del proyecto](#descripción-del-proyecto)
-- [Últimas características](#últimas-características)
-- [Características principales](#características-principales)
-- [Requisitos](#requisitos)
-- [Instalación](#instalación)
-- [Uso](#uso)
-- [Arquitectura del contrato](#arquitectura-del-contrato)
-- [Funcionalidades implementadas](#funcionalidades-implementadas)
-- [Estructura del proyecto](#estructura-del-proyecto)
+- [Project Description](#project-description)
+- [Latest Features](#latest-features)
+- [Main Features](#main-features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contract Architecture](#contract-architecture)
+- [Implemented Functionalities](#implemented-functionalities)
+- [Project Structure](#project-structure)
 - [Testing](#testing)
-- [Tecnologías utilizadas](#tecnologías-utilizadas)
+- [Technologies Used](#technologies-used)
 
 ---
 
-## Descripción del proyecto
+## Project Description
 
-Esta aplicación permite gestionar el alquiler de vehículos de forma descentralizada utilizando la tecnología blockchain de Stellar.
+This application enables decentralized vehicle rental management using Stellar blockchain technology.
 
-Los usuarios pueden:
+Users can:
 
-| Rol | Funcionalidades |
+| Role | Functionalities |
 |-----|----------------|
-| **Administradores** | Configurar comisiones, gestionar vehículos y retirar ganancias |
-| **Propietarios** | Agregar vehículos al catálogo, recibir pagos por alquileres |
-| **Arrendatarios** | Explorar vehículos disponibles, alquilar y devolver autos |
+| **Administrators** | Configure commissions, manage vehicles, and withdraw earnings |
+| **Owners** | Add vehicles to the catalog, receive rental payments |
+| **Renters** | Browse available vehicles, rent and return cars |
 
 ---
 
-## Otras características implementadas
+## Latest Features
 
-### Mejoras en experiencia de usuario
+### User Experience Improvements
 
 <details>
-<summary><strong>Sistema de notificaciones toast</strong></summary>
+<summary><strong>Toast notification system</strong></summary>
 
-Reemplazo de alerts por toast notifications no bloqueantes para mejor feedback visual. Todas las operaciones muestran mensajes claros de éxito o error sin interrumpir el flujo del usuario.
-![Vista previa de la aplicación](images/toast.png)
+Replaced alerts with non-blocking toast notifications for better visual feedback. All operations display clear success or error messages without interrupting the user flow.
+![Application preview](images/toast.png)
 </details>
 
 <details>
-<summary><strong>Manejo robusto de errores</strong></summary>
+<summary><strong>Robust error handling</strong></summary>
 
-Sistema completo de mapeo de errores de Stellar con mensajes descriptivos en español. El sistema detecta automáticamente el tipo de error y presenta mensajes claros al usuario.
-
-</details>
-
-<details>
-<summary><strong>Validación de transacciones</strong></summary>
-
-Todas las operaciones validan el éxito de las transacciones antes de actualizar el estado de la aplicación. Esto previene inconsistencias y garantiza que la interfaz refleje el estado real del blockchain.
+Complete Stellar error mapping system with descriptive messages in Spanish. The system automatically detects the error type and presents clear messages to the user.
 
 </details>
 
 <details>
-<summary><strong>Prevención de ejecuciones duplicadas</strong></summary>
+<summary><strong>Transaction validation</strong></summary>
 
-Protección contra doble-clic y ejecuciones simultáneas con flags de estado. Los botones se deshabilitan automáticamente durante las operaciones para evitar transacciones duplicadas.
-
-</details>
-
-<details>
-<summary><strong>Campos numéricos intuitivos</strong></summary>
-
-Ahora puedes borrar completamente los campos y escribir desde cero sin problemas. Los campos usan valores string internamente, permitiendo una edición fluida y natural.
+All operations validate transaction success before updating the application state. This prevents inconsistencies and ensures the interface reflects the actual blockchain state.
 
 </details>
 
 <details>
-<summary><strong>Botones inteligentes</strong></summary>
+<summary><strong>Prevention of duplicate executions</strong></summary>
 
-Se deshabilitan automáticamente durante operaciones y cuando no hay fondos disponibles. Muestran estados de carga claros (ej: "Renting...", "Deleting...") para feedback inmediato.
+Protection against double-clicks and simultaneous executions with state flags. Buttons are automatically disabled during operations to prevent duplicate transactions.
 
 </details>
 
-### Mejoras en seguridad y confiabilidad
+<details>
+<summary><strong>Intuitive numeric fields</strong></summary>
 
-- **Validación en tiempo real**: Los botones se deshabilitan cuando los valores no son válidos
-- **Manejo de errores de red**: Mensajes claros cuando las transacciones fallan
-- **Estado sincronizado**: El estado de la aplicación solo se actualiza después de confirmar que la transacción fue exitosa
+You can now completely clear fields and type from scratch without issues. Fields use string values internally, allowing smooth and natural editing.
 
----
+</details>
 
-## Recomendación para desarrollo y pruebas
+<details>
+<summary><strong>Smart buttons</strong></summary>
 
-> **IMPORTANTE**: Por comodidad al probar la aplicación, **recomiendo crear 3 cuentas diferentes en Freighter** y mantenerlas conectadas simultáneamente.
+Automatically disabled during operations and when no funds are available. Display clear loading states (e.g., "Renting...", "Deleting...") for immediate feedback.
 
-**Wallets recomendadas:**
+</details>
 
-- **Wallet de Administrador**: Para configurar comisiones y gestionar vehículos
-- **Wallet de Owner**: Para agregar vehículos y recibir pagos por alquileres
-- **Wallet de Renter**: Para alquilar y devolver vehículos
+### Security and Reliability Improvements
 
-
----
-
-## Características principales
-
-### Comisión del administrador
-
-El Administrador puede configurar una comisión monetaria fija por cada alquiler. Esta comisión se suma automáticamente al depósito que paga el arrendatario, garantizando ingresos para la plataforma.
-
-**Funcionalidades:**
-
-- *Configuración de comisión por el Administrador*
-- *Comisión automática en cada alquiler*
-- *Retiro de comisiones acumuladas en cualquier momento*
-- *Consulta de comisión disponible para retiro*
-
-![Configurar Comisión](images/set-commission.png)
+- **Real-time validation**: Buttons are disabled when values are invalid
+- **Network error handling**: Clear messages when transactions fail
+- **Synchronized state**: Application state updates only after confirming successful transactions
 
 ---
 
-### Depósito + comisión
+## Recommendation for Development and Testing
 
-Al alquilar un vehículo, la comisión configurada se suma automáticamente al depósito total. El Owner recibe el 100% del monto del alquiler (sin deducción de comisión), mientras que el Administrador acumula la comisión configurada.
+> **IMPORTANT**: For convenience when testing the application, **I recommend creating 3 different accounts in Freighter** and keeping them connected simultaneously.
 
-**Características:**
+**Recommended wallets:**
 
-- *Cálculo automático: `Depósito Total = Monto Alquiler + Comisión`*
-- *El Owner recibe el monto completo del alquiler*
-- *La comisión se acumula en la cuenta del Administrador*
-
-![Alquiler con Comisión](images/rental-with-commission.png)
+- **Administrator Wallet**: To configure commissions and manage vehicles
+- **Owner Wallet**: To add vehicles and receive rental payments
+- **Renter Wallet**: To rent and return vehicles
 
 ---
 
-### Retiro de fondos del administrador
+## Main Features
 
-El Administrador puede consultar y retirar las comisiones acumuladas en cualquier momento a través de una interfaz intuitiva.
+### Administrator Commission
 
-**Funcionalidades:**
+The Administrator can configure a fixed monetary commission for each rental. This commission is automatically added to the deposit paid by the renter, ensuring platform revenue.
 
-- *Visualización de comisión disponible en tiempo real*
-- *Modal para retirar comisiones*
-- *Validación de fondos disponibles*
-- *Botón deshabilitado cuando no hay fondos disponibles*
+**Functionalities:**
 
-![Retiro de Comisión](images/withdraw-commission.png)
+- *Commission configuration by Administrator*
+- *Automatic commission on each rental*
+- *Withdrawal of accumulated commissions at any time*
+- *Query available commission for withdrawal*
 
----
-
-### Retornos de autos
-
-Los arrendatarios pueden devolver los vehículos que han alquilado, cambiando el estado del vehículo de "Rented" a "Available".
-
-**Funcionalidades:**
-
-- *Botón "Return" visible para arrendatarios en vehículos alquilados*
-- *Cambio automático de estado del vehículo*
-- *Actualización en tiempo real del catálogo*
-
-![Devolver Auto](images/return-car.png)
+![Set Commission](images/set-commission.png)
 
 ---
 
-### Retiros de owners restringidos
+### Deposit + Commission
 
-Los propietarios solo pueden retirar sus fondos cuando el vehículo ha sido devuelto (estado "Available"). El botón de retiro está deshabilitado si:
+When renting a vehicle, the configured commission is automatically added to the total deposit. The Owner receives 100% of the rental amount (without commission deduction), while the Administrator accumulates the configured commission.
 
-- El vehículo está alquilado (estado "Rented")
-- No hay fondos disponibles para retirar
+**Features:**
 
-**Funcionalidades:**
+- *Automatic calculation: `Total Deposit = Rental Amount + Commission`*
+- *Owner receives full rental amount*
+- *Commission accumulates in Administrator's account*
 
-- *Validación en el contrato: solo permite retiro si el auto está disponible*
-- *Botón "Withdraw" visible únicamente cuando hay fondos disponibles*
-- *Modal para especificar monto a retirar*
-- *Visualización de fondos disponibles en tiempo real*
-
-![Retiro de Owner](images/withdraw-owner.png)
+![Rental with Commission](images/rental-with-commission.png)
 
 ---
 
-## Requisitos
+### Administrator Fund Withdrawal
 
-Antes de instalar y ejecutar el proyecto, asegúrate de tener instalado:
+The Administrator can query and withdraw accumulated commissions at any time through an intuitive interface.
 
-| Herramienta | Descripción | Enlace |
+**Functionalities:**
+
+- *Real-time display of available commission*
+- *Modal for commission withdrawal*
+- *Available funds validation*
+- *Button disabled when no funds available*
+
+![Commission Withdrawal](images/withdraw-commission.png)
+
+---
+
+### Car Returns
+
+Renters can return vehicles they have rented, changing the vehicle status from "Rented" to "Available".
+
+**Functionalities:**
+
+- *"Return" button visible for renters on rented vehicles*
+- *Automatic vehicle status change*
+- *Real-time catalog update*
+
+![Return Car](images/return-car.png)
+
+---
+
+### Restricted Owner Withdrawals
+
+Owners can only withdraw their funds when the vehicle has been returned ("Available" status). The withdrawal button is disabled if:
+
+- The vehicle is rented ("Rented" status)
+- No funds available for withdrawal
+
+**Functionalities:**
+
+- *Contract validation: only allows withdrawal if car is available*
+- *"Withdraw" button visible only when funds are available*
+- *Modal to specify withdrawal amount*
+- *Real-time display of available funds*
+
+![Owner Withdrawal](images/withdraw-owner.png)
+
+---
+
+## Requirements
+
+Before installing and running the project, make sure you have installed:
+
+| Tool | Description | Link |
 |-------------|-------------|--------|
-| **Rust** | Lenguaje de programación (última versión estable) | [Instalar Rust](https://www.rust-lang.org/tools/install) |
-| **Cargo** | Gestor de paquetes de Rust (incluido con Rust) | - |
-| **Target de Rust para Soroban** | Target necesario para compilar contratos | [Guía de Soroban](https://developers.stellar.org/docs/build/smart-contracts/getting-started/setup) |
-| **Node.js** | Runtime de JavaScript (v22 o superior) | [Instalar Node.js](https://nodejs.org/en/download/package-manager) |
-| **npm** | Gestor de paquetes de Node.js (incluido con Node.js) | - |
-| **Stellar CLI** | Herramienta de línea de comandos de Stellar | [Stellar CLI](https://github.com/stellar/stellar-core) |
-| **Scaffold Stellar CLI Plugin** | Plugin para desarrollo de dApps | [Scaffold Stellar](https://github.com/AhaLabs/scaffold-stellar) |
+| **Rust** | Programming language (latest stable version) | [Install Rust](https://www.rust-lang.org/tools/install) |
+| **Cargo** | Rust package manager (included with Rust) | - |
+| **Rust Target for Soroban** | Target needed to compile contracts | [Soroban Guide](https://developers.stellar.org/docs/build/smart-contracts/getting-started/setup) |
+| **Node.js** | JavaScript runtime (v22 or higher) | [Install Node.js](https://nodejs.org/en/download/package-manager) |
+| **npm** | Node.js package manager (included with Node.js) | - |
+| **Stellar CLI** | Stellar command-line tool | [Stellar CLI](https://github.com/stellar/stellar-core) |
+| **Scaffold Stellar CLI Plugin** | Plugin for dApp development | [Scaffold Stellar](https://github.com/AhaLabs/scaffold-stellar) |
 
-> **Nota importante**: Todas estas herramientas son necesarias para desarrollar y desplegar el proyecto. Asegúrate de tenerlas instaladas antes de continuar.
+> **Important note**: All these tools are necessary to develop and deploy the project. Make sure you have them installed before continuing.
 
 ---
 
-## Instalación
+## Installation
 
-### 1. Clonar el repositorio
+### 1. Clone the repository
 
 ```bash
-git clone <tu-repositorio>
+git clone <your-repository>
 cd stellar0dApp
 ```
 
 ---
 
-### 2. Configurar variables de entorno
+### 2. Configure environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-**Importante:** Edita el archivo `.env` con tus configuraciones de red y contratos antes de continuar.
+**Important:** Edit the `.env` file with your network and contract configurations before continuing.
 
 ---
 
-### 3. Instalar dependencias del frontend
+### 3. Install frontend dependencies
 
 ```bash
 npm install
@@ -234,7 +235,7 @@ npm install
 
 ---
 
-### 4. Instalar dependencias de los contratos
+### 4. Install contract dependencies
 
 ```bash
 npm run install:contracts
@@ -242,37 +243,37 @@ npm run install:contracts
 
 ---
 
-### 5. Compilar el contrato
+### 5. Compile the contract
 
 ```bash
 cd contracts/rent-a-car
 cargo build --target wasm32-unknown-unknown --release
 ```
 
-> **Nota**: Este paso puede tardar varios minutos la primera vez que se ejecuta.
+> **Note**: This step may take several minutes the first time it runs.
 
 ---
 
-## Uso
+## Usage
 
-### Modo desarrollo
+### Development mode
 
-Para ejecutar el proyecto en modo desarrollo:
+To run the project in development mode:
 
 ```bash
 npm run dev
 ```
 
-**Lo que se inicia:**
+**What starts:**
 
-- *El servidor de desarrollo de Vite*
-- *El watcher de Scaffold Stellar para reconstruir los clientes del contrato*
+- *Vite development server*
+- *Scaffold Stellar watcher to rebuild contract clients*
 
-Abre tu navegador en la URL que se muestra en la consola (generalmente `http://localhost:5173`).
+Open your browser at the URL shown in the console (usually `http://localhost:5173`).
 
 ---
 
-### Compilar para producción
+### Build for production
 
 ```bash
 npm run build
@@ -280,7 +281,7 @@ npm run build
 
 ---
 
-### Preview de producción
+### Production preview
 
 ```bash
 npm run preview
@@ -288,13 +289,13 @@ npm run preview
 
 ---
 
-## Arquitectura del contrato
+## Contract Architecture
 
-### Estructura de datos
+### Data Structures
 
-El contrato utiliza las siguientes estructuras principales:
+The contract uses the following main structures:
 
-#### Car (Vehículo)
+#### Car (Vehicle)
 
 ```rust
 pub struct Car {
@@ -303,14 +304,14 @@ pub struct Car {
 }
 ```
 
-**Campos importantes:**
+**Important fields:**
 
-- `car_status`: Estado actual del vehículo
-- `available_to_withdraw`: Monto disponible para retiro por el owner
+- `car_status`: Current vehicle status
+- `available_to_withdraw`: Amount available for owner withdrawal
 
 ---
 
-#### Rental (Alquiler)
+#### Rental
 
 ```rust
 pub struct Rental {
@@ -319,127 +320,127 @@ pub struct Rental {
 }
 ```
 
-**Campos importantes:**
+**Important fields:**
 
-- `total_days_to_rent`: Días totales del alquiler
-- `amount`: Monto del alquiler (en stroops)
+- `total_days_to_rent`: Total rental days
+- `amount`: Rental amount (in stroops)
 
 ---
 
-#### CarStatus (Estado del vehículo)
+#### CarStatus (Vehicle Status)
 
-| Estado | Descripción |
+| Status | Description |
 |--------|-------------|
-| `Available` | Disponible para alquilar |
-| `Rented` | Actualmente alquilado |
-| `Maintenance` | En mantenimiento |
+| `Available` | Available for rent |
+| `Rented` | Currently rented |
+| `Maintenance` | Under maintenance |
 
 ---
 
-### Funciones del contrato
+### Contract Functions
 
-#### Funciones públicas (cualquiera puede llamar)
+#### Public functions (anyone can call)
 
-Estas funciones no requieren autenticación y pueden ser llamadas por cualquier usuario:
+These functions don't require authentication and can be called by any user:
 
-| Función | Descripción |
+| Function | Description |
 |---------|-------------|
-| `get_car_status(owner)` | Obtiene el estado de un vehículo |
-| `get_admin_available_to_withdraw()` | Obtiene la comisión disponible del Admin |
-| `get_owner_available_to_withdraw(owner)` | Obtiene los fondos disponibles del Owner |
+| `get_car_status(owner)` | Gets vehicle status |
+| `get_admin_available_to_withdraw()` | Gets Admin available commission |
+| `get_owner_available_to_withdraw(owner)` | Gets Owner available funds |
 
 ---
 
-#### Funciones de administrador
+#### Administrator functions
 
-Requieren autenticación del administrador:
+Require administrator authentication:
 
-| Función | Descripción |
+| Function | Description |
 |---------|-------------|
-| `set_admin_commission(commission)` | Configura la comisión del Administrador |
-| `withdraw_admin_commission(amount)` | Retira comisiones acumuladas |
-| `remove_car(owner)` | Elimina un vehículo del catálogo |
+| `set_admin_commission(commission)` | Configures Administrator commission |
+| `withdraw_admin_commission(amount)` | Withdraws accumulated commissions |
+| `remove_car(owner)` | Removes vehicle from catalog |
 
 ---
 
-#### Funciones de owner
+#### Owner functions
 
-Requieren autenticación del propietario:
+Require owner authentication:
 
-| Función | Descripción |
+| Function | Description |
 |---------|-------------|
-| `add_car(owner, price_per_day)` | Agrega un vehículo al catálogo |
-| `payout_owner(owner, amount)` | Retira fondos (solo si el auto está disponible) |
+| `add_car(owner, price_per_day)` | Adds vehicle to catalog |
+| `payout_owner(owner, amount)` | Withdraws funds (only if car is available) |
 
 ---
 
-#### Funciones de renter
+#### Renter functions
 
-Requieren autenticación del arrendatario:
+Require renter authentication:
 
-| Función | Descripción |
+| Function | Description |
 |---------|-------------|
-| `rental(renter, owner, total_days_to_rent, amount)` | Alquila un vehículo |
-| `return_car(renter, owner)` | Devuelve un vehículo alquilado |
+| `rental(renter, owner, total_days_to_rent, amount)` | Rents a vehicle |
+| `return_car(renter, owner)` | Returns a rented vehicle |
 
 ---
 
-## Funcionalidades implementadas
+## Implemented Functionalities
 
-El proyecto incluye todas las funcionalidades principales para la gestión completa del alquiler de vehículos:
+The project includes all main functionalities for complete vehicle rental management:
 
-* **Gestión de vehículos**: Agregar y eliminar vehículos del catálogo, consulta de estados en tiempo real
-* **Sistema de alquiler**: Alquiler por días con cálculo automático de precios y validación de disponibilidad
-* **Sistema de comisiones**: Configuración de comisiones, acumulación automática y retiro de ganancias por el Administrador
-* **Devolución de vehículos**: Los arrendatarios pueden devolver vehículos, cambiando su estado automáticamente
-* **Gestión de fondos**: Retiros restringidos para Owners (solo cuando el auto está disponible), visualización de fondos en tiempo real
-* **Interfaz de usuario**: Dashboard por roles, modales intuitivos, validación de formularios, manejo robusto de errores y notificaciones toast
+* **Vehicle management**: Add and remove vehicles from catalog, real-time status queries
+* **Rental system**: Daily rental with automatic price calculation and availability validation
+* **Commission system**: Commission configuration, automatic accumulation, and Administrator earnings withdrawal
+* **Vehicle returns**: Renters can return vehicles, automatically changing their status
+* **Fund management**: Restricted withdrawals for Owners (only when car is available), real-time fund display
+* **User interface**: Role-based dashboard, intuitive modals, form validation, robust error handling, and toast notifications
 
 ---
 
-## Estructura del proyecto
+## Project Structure
 
 ```
 stellar0dApp/
 ├── contracts/
 │   └── rent-a-car/
 │       ├── src/
-│       │   ├── contract.rs              # Implementación principal del contrato
+│       │   ├── contract.rs              # Main contract implementation
 │       │   ├── interfaces/
-│       │   │   └── contract.rs          # Interfaz del contrato
+│       │   │   └── contract.rs          # Contract interface
 │       │   ├── storage/
-│       │   │   ├── admin.rs              # Funciones de almacenamiento del Admin
-│       │   │   ├── car.rs                # Funciones de almacenamiento de autos
-│       │   │   ├── rental.rs             # Funciones de almacenamiento de alquileres
+│       │   │   ├── admin.rs              # Admin storage functions
+│       │   │   ├── car.rs                # Car storage functions
+│       │   │   ├── rental.rs             # Rental storage functions
 │       │   │   └── structs/
-│       │   │       ├── car.rs            # Estructura de datos Car
-│       │   │       └── rental.rs         # Estructura de datos Rental
+│       │   │       ├── car.rs            # Car data structure
+│       │   │       └── rental.rs         # Rental data structure
 │       │   ├── methods/
-│       │   │   ├── admin/                # Métodos del administrador
-│       │   │   ├── owner/                # Métodos del propietario
-│       │   │   ├── renter/               # Métodos del arrendatario
-│       │   │   └── public/               # Métodos públicos (consultas)
-│       │   ├── events/                   # Definición de eventos
-│       │   └── tests/                    # Tests unitarios del contrato
+│       │   │   ├── admin/                # Administrator methods
+│       │   │   ├── owner/                # Owner methods
+│       │   │   ├── renter/               # Renter methods
+│       │   │   └── public/               # Public methods (queries)
+│       │   ├── events/                   # Event definitions
+│       │   └── tests/                    # Contract unit tests
 │       └── Cargo.toml
 ├── src/
 │   ├── components/
-│   │   ├── CarList.tsx                   # Lista de vehículos
-│   │   ├── CreateCarForm.tsx             # Formulario para agregar vehículos
-│   │   ├── RentCarModal.tsx              # Modal para alquilar
-│   │   ├── SetCommissionModal.tsx        # Modal para configurar comisión
-│   │   ├── WithdrawCommissionModal.tsx   # Modal para retirar comisión
-│   │   └── WithdrawOwnerModal.tsx        # Modal para retiro de Owner
+│   │   ├── CarList.tsx                   # Vehicle list
+│   │   ├── CreateCarForm.tsx             # Form to add vehicles
+│   │   ├── RentCarModal.tsx              # Rental modal
+│   │   ├── SetCommissionModal.tsx        # Commission configuration modal
+│   │   ├── WithdrawCommissionModal.tsx   # Commission withdrawal modal
+│   │   └── WithdrawOwnerModal.tsx        # Owner withdrawal modal
 │   ├── pages/
-│   │   ├── Dashboard.tsx                 # Dashboard principal
-│   │   ├── RoleSelection.tsx             # Selección de rol
-│   │   └── ConnectWallet.tsx              # Conexión de wallet
+│   │   ├── Dashboard.tsx                 # Main dashboard
+│   │   ├── RoleSelection.tsx             # Role selection
+│   │   └── ConnectWallet.tsx              # Wallet connection
 │   ├── services/
-│   │   ├── stellar.service.ts            # Servicio para interactuar con Stellar
-│   │   └── wallet.service.ts             # Servicio para manejo de wallets
+│   │   ├── stellar.service.ts            # Service to interact with Stellar
+│   │   └── wallet.service.ts             # Wallet handling service
 │   ├── providers/
-│   │   └── StellarAccountProvider.tsx    # Context provider para cuentas
-│   └── interfaces/                        # Definiciones TypeScript
+│   │   └── StellarAccountProvider.tsx    # Account context provider
+│   └── interfaces/                        # TypeScript definitions
 ├── package.json
 ├── environments.toml
 └── README.md
@@ -449,24 +450,24 @@ stellar0dApp/
 
 ## Testing
 
-El proyecto incluye una suite completa de tests unitarios para el contrato inteligente.
+The project includes a complete unit test suite for the smart contract.
 
-### Ejecutar tests del contrato
+### Run contract tests
 
 ```bash
 cd contracts/rent-a-car
 cargo test --lib
 ```
 
-> **Tip**: Puedes ejecutar tests específicos usando `cargo test --lib <nombre_del_test>`
+> **Tip**: You can run specific tests using `cargo test --lib <test_name>`
 
 ---
 
-### Tests implementados
+### Implemented Tests
 
-#### Tests de administración
+#### Administration tests
 
-*Funciones administrativas*
+*Administrative functions*
 
 - `test_set_admin_commission_successfully`
 - `test_withdraw_admin_commission_successfully`
@@ -474,9 +475,9 @@ cargo test --lib
 
 ---
 
-#### Tests de vehículos
+#### Vehicle tests
 
-*Gestión del catálogo de vehículos*
+*Vehicle catalog management*
 
 - `test_add_car_successfully`
 - `test_remove_car_deletes_from_storage`
@@ -484,9 +485,9 @@ cargo test --lib
 
 ---
 
-#### Tests de alquiler
+#### Rental tests
 
-*Proceso de alquiler y devolución*
+*Rental and return process*
 
 - `test_rental_car_successfully`
 - `test_rental_with_admin_commission`
@@ -494,9 +495,9 @@ cargo test --lib
 
 ---
 
-#### Tests de retiros
+#### Withdrawal tests
 
-*Validación de retiros de fondos*
+*Fund withdrawal validation*
 
 - `test_payout_owner_successfully`
 - `test_payout_owner_when_car_is_rented_fails`
@@ -504,44 +505,44 @@ cargo test --lib
 
 ---
 
-#### Tests de autenticación
+#### Authentication tests
 
-*Seguridad y permisos*
+*Security and permissions*
 
-- Tests para verificar que solo usuarios autorizados pueden ejecutar funciones específicas
+- Tests to verify only authorized users can execute specific functions
 
 ---
 
-## Tecnologías utilizadas
+## Technologies Used
 
 **Backend (Smart Contract):**
-- *Rust* con *Soroban SDK* para contratos inteligentes en Stellar
-- *Stellar XDR* para serialización de datos
+- *Rust* with *Soroban SDK* for smart contracts on Stellar
+- *Stellar XDR* for data serialization
 
 **Frontend:**
-- *React 19* con *TypeScript* para la interfaz de usuario
-- *Vite* como build tool y dev server
-- *Stellar SDK* y *Stellar Wallets Kit* para integración con wallets (Freighter)
+- *React 19* with *TypeScript* for user interface
+- *Vite* as build tool and dev server
+- *Stellar SDK* and *Stellar Wallets Kit* for wallet integration (Freighter)
 
-**Herramientas de desarrollo:**
-- *Scaffold Stellar* como framework base
-- *Cargo* y *npm* para gestión de dependencias
+**Development tools:**
+- *Scaffold Stellar* as base framework
+- *Cargo* and *npm* for dependency management
 
-**Red:**
-- *Testnet de Stellar* para pruebas y desarrollo
+**Network:**
+- *Stellar Testnet* for testing and development
 
 ---
 
-## Autor
+## Author
 
 **Rodion Romanovich**
 
 ---
 
-## Agradecimientos
+## Acknowledgments
 
-- **Núcleo** - Por la oportunidad de realizar el bootcamp
-- **Comunidad de Stellar** - Por la documentación y herramientas y ser una tecnologia tan divertida
-- **Javeblockchain** - Porque no crei conocer gente tan maravillosa 
+- **Núcleo** - For the opportunity to participate in the bootcamp
+- **Stellar Community** - For the documentation and tools, and for being such a fun technology
+- **Javeblockchain** - Because I didn't think I'd meet such wonderful people
 
 ---
